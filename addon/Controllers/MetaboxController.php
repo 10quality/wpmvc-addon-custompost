@@ -4,6 +4,7 @@ namespace WPMVC\Addons\Metaboxer\Controllers;
 
 use ReflectionClass;
 use WPMVC\MVC\Controller;
+use WPMVC\Addons\Metaboxer\MetaboxerAddon;
 use WPMVC\Addons\Metaboxer\Abstracts\PostModel;
 use WPMVC\Addons\Metaboxer\Abstracts\Control;
 
@@ -110,6 +111,17 @@ class MetaboxController extends Controller
         $this->render( $model, $metabox_id );
     }
     /**
+     * Renders output.
+     * @since 1.0.0
+     * 
+     * @param \WPMVC\Addons\Metaboxer\Abstracts\PostModel &$model
+     * @param string                                      $metabox_id
+     */
+    protected function render( PostModel $model, $metabox_id )
+    {
+        // @todo render
+    }
+    /**
      * Returns array collection with models available.
      * @since 1.0.0
      * 
@@ -142,7 +154,7 @@ class MetaboxController extends Controller
                         $reflector = new ReflectionClass( $class );
                         return $reflector->newInstance();
                     },
-                    apply_filters( 'administrator_controls', [] )
+                    apply_filters( 'metaboxer_controls', [] )
                 ),
                 function( $control ) {
                     return $control && $control instanceof Control;
