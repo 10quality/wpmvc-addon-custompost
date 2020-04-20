@@ -8,18 +8,11 @@ namespace WPMVC\Addons\Metaboxer\Traits;
  *
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-metaboxer
- * @license MIT
+ * @license M
  * @version 1.0.0
  */
 trait MetaboxTrait
 {
-    /**
-     * Tab ID that indicates to the rendering process
-     * not to use tabs, as metabox fields will be displayed in one with no tabs.
-     * @since 1.0.0
-     * @var string
-     */
-    const NO_TAB = '__NOTAB';
     /**
      * Metaboxes, tabs, settings and fields definition.
      * @since 1.0.0
@@ -45,11 +38,21 @@ trait MetaboxTrait
      * Returns flag indicating if settings object is empty.
      * Meaning that it has no fields to display.
      * @since 1.0.0
-     * *
+     *
      * @return bool
      */
     public function is_empty()
     {
         return empty( $this->metaboxes );
+    }
+    /**
+     * Returns flag indicating model has been loaded or assigned with an ID.
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_assigned()
+    {
+        return !empty( $this->attributes['ID'] );
     }
 }

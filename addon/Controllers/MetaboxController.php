@@ -13,7 +13,7 @@ use WPMVC\Addons\Metaboxer\Abstracts\Control;
  * Metabox hooks.
  *
  * @author 10 Quality <info@10quality.com>
- * @package wpmvc-addon-metaboxer
+ * @package wpmvc-addon-metabox
  * @license MIT
  * @version 1.0.0
  */
@@ -49,15 +49,17 @@ class MetaboxController extends Controller
         $models = $this->get_models();
         foreach ( $models as $key => $model ) {
             foreach ( $model->metaboxes as $metabox_id => $metabox ) {
+                $id = $metabox_id . '_' . uniqid();
                 add_meta_box(
-                    $metabox_id . '_' . uniqid(),
+                    $id,
                     array_key_exists( 'title', $metabox ) ? $metabox['title'] : __( 'Fields', 'wpmvc-addon-metabox' ),
                     [&$this, 'process_' . $key . '@' . $metabox_id],
                     array_key_exists( 'screen', $metabox ) ? $metabox['screen'] : $model->type,
                     array_key_exists( 'context ', $metabox ) ? $metabox['context '] : 'advanced',
                     array_key_exists( 'priority  ', $metabox ) ? $metabox['priority  '] : 'default',
                     array_key_exists( 'args  ', $metabox ) ? $metabox['args  '] : null
-                );   
+                );
+                add_filter( 'postbox_classes_' . $model->type. '_' . $id, [&$this, 'css_' . $key . '@' . $metabox_id] );
             }
         }
     }
@@ -72,9 +74,14 @@ class MetaboxController extends Controller
      */
     public function __call( $method, $args = [] )
     {
-        if ( strpos( $method, 'process_' ) === false ) return;
+        // Process rendering
+        if ( strpos( $method, 'process_' ) === false
+            && strpos( $method, 'css_' ) === false
+        ) return;
         // Get model key and method id
         $key = explode( '@', str_replace( 'process_', '', $method ) );
+        if ( strpos( $method, 'css_' ) !== false )
+            $key = explode( '@', str_replace( 'css_', '', $method ) );
         if ( count( $key ) !== 2 ) return;
         $metabox_id = $key[1];
         $key = $key[0];
@@ -84,13 +91,20 @@ class MetaboxController extends Controller
             $models = $this->get_models();
             if ( !array_key_exists( $key, $models ) ) return;
             static::$buffer[$key] = apply_filters( 'administrator_preload_model_' . $key, $models[$key] );
-            static::$buffer[$key]->from_post( $args[0] );
         }
         // Check if metabox exists
         if ( !array_key_exists( $metabox_id, static::$buffer[$key]->metaboxes )
             || !array_key_exists( 'tabs', static::$buffer[$key]->metaboxes[$metabox_id] )
         )
             return;
+        if ( strpos( $method, 'css_' ) !== false )
+            return $this->metabox_css( static::$buffer[$key], $metabox_id, $args[0] );
+        if ( !empty( $args )
+            && !empty( $args[0] )
+            && !static::$buffer[$key]->is_assigned()
+        ) {
+            static::$buffer[$key]->from_post( $args[0] );
+        }
         // Obtain all registered controls
         $controls_in_use = [];
         foreach ( static::$buffer[$key]->metaboxes[$metabox_id]['tabs'] as $tab ) {
@@ -106,18 +120,18 @@ class MetaboxController extends Controller
         }
         $this->get_controls( $controls_in_use );
         // Model handling
-        $model = apply_filters( 'metaboxer_model_' . $key, $model, $metabox_id );
+        static::$buffer[$key] = apply_filters( 'metaboxer_model_' . $key, static::$buffer[$key], $metabox_id );
         // Render
-        $this->render( $model, $metabox_id );
+        $this->render( $key, $metabox_id );
     }
     /**
      * Renders output.
      * @since 1.0.0
      * 
-     * @param \WPMVC\Addons\Metaboxer\Abstracts\PostModel &$model
-     * @param string                                      $metabox_id
+     * @param string &$key        Model key.
+     * @param string &$metabox_id Metabox ID.
      */
-    protected function render( PostModel $model, $metabox_id )
+    protected function render( &$key, &$metabox_id )
     {
         // @todo render
     }
@@ -162,17 +176,39 @@ class MetaboxController extends Controller
             );
         }
         for ( $i = count( $controls_in_use ) - 1; $i >= 0; --$i ) {
-            $in_use = array_filter( $this->controls, function( $control ) use( &$controls_in_use, $i ) {
+            $in_use = array_filter( static::$controls, function( $control ) use( &$controls_in_use, $i ) {
                 return $control->type === $controls_in_use[$i];
             } );
             if ( count( $in_use ) )
                 unset( $controls_in_use[$i] );
         }
-        $this->controls = array_merge(
-            $this->controls,
+        static::$controls = array_merge(
+            static::$controls,
             array_filter( static::$registered_controls, function( $control ) use( &$controls_in_use ) {
                 return in_array( $control->type, $controls_in_use );
-            } );
+            } )
         );
+    }
+    /**
+     * Returns metabox css classes.
+     * @since 1.0.0
+     * 
+     * @param \WPMVC\Addon\Metaboxes\Abstracts\PostModel &$model
+     * @param string                                     $metabox_id
+     * @param array                                      $classes
+     * 
+     * @return array
+     */
+    private function metabox_css( &$model, $metabox_id, $classes )
+    {
+        // Registered settings models
+        $classes[] = 'wpmvc';
+        if ( array_key_exists( 'class', $model->metaboxes[$metabox_id] ) ) {
+            $classes[] = $model->metaboxes[$metabox_id]['class'];
+        }
+        if ( array_key_exists( 'tabs', $model->metaboxes[$metabox_id] ) ) {
+            $classes[] = count( $model->metaboxes[$metabox_id]['tabs'] ) > 1 ? 'has-tabs' : 'no-tabs';
+        }
+        return $classes;
     }
 }

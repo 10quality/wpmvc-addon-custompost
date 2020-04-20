@@ -3,7 +3,7 @@
 namespace WPMVC\Addons\Metaboxer\Abstracts;
 
 use ReflectionClass;
-use WP_Post;
+use WPMVC\MVC\Traits\FindTrait;
 use WPMVC\MVC\Models\PostModel as Model;
 use WPMVC\Addons\Metaboxer\Contracts\Enqueueable;
 use WPMVC\Addons\Metaboxer\Traits\MetaboxTrait;
@@ -22,7 +22,14 @@ use WPMVC\Addons\Metaboxer\Traits\EnqueueTrait;
  */
 class PostModel extends Model implements Enqueueable
 {
-    use MetaboxTrait, EnqueueTrait;
+    use FindTrait, MetaboxTrait, EnqueueTrait;
+    /**
+     * Tab ID that indicates to the rendering process
+     * not to use tabs, as metabox fields will be displayed in one with no tabs.
+     * @since 1.0.0
+     * @var string
+     */
+    const NO_TAB = '__NOTAB';
     /**
      * Default constructor.
      * @since 1.0.0
@@ -42,7 +49,7 @@ class PostModel extends Model implements Enqueueable
      * 
      * @param \WP_Post $post
      */
-    public function from_post( WP_Post $post )
+    public function from_post( $post )
     {
         $this->attributes = (array)$post;
         $this->load_meta();
