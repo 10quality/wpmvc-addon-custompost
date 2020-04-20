@@ -13,7 +13,7 @@ use WPMVC\Addons\Metaboxer\Abstracts\Control;
  * Metabox hooks.
  *
  * @author 10 Quality <info@10quality.com>
- * @package wpmvc-addon-metabox
+ * @package wpmvc-addon-metaboxer
  * @license MIT
  * @version 1.0.0
  */
