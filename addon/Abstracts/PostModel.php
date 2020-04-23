@@ -55,6 +55,14 @@ class PostModel extends Model implements Enqueueable
         $this->load_meta();
     }
     /**
+     * Renders additional HTML code at the footer/end of the form.
+     * @since 1.0.0
+     */
+    public function footer()
+    {
+        // TODO: Based on control.
+    }
+    /**
      * Inits model.
      * @since 1.0.0
      */

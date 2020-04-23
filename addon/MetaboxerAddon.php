@@ -41,6 +41,7 @@ class MetaboxerAddon extends Addon
             static::$instance = $this;
             add_action( 'admin_enqueue_scripts', [&$this, 'admin_enqueue'], 99 );
             add_action( 'add_meta_boxes', [&$this, 'metaboxes_init'], 5 );
+            add_action( 'admin_footer', [&$this, 'admin_footer'], 5 );
             add_filter( 'metaboxer_controls', [&$this, 'register_controls'], 1 );
             add_filter( 'metaboxer_no_value_fields', function() {
                 return [
@@ -72,6 +73,16 @@ class MetaboxerAddon extends Addon
         $this->mvc->call( 'MetaboxController@init' );
     }
     /**
+     * Admin footer
+     * @since 1.0.0
+     * 
+     * @hook admin_footer
+     */
+    public function admin_footer()
+    {
+        $this->mvc->call( 'MetaboxController@footer' );
+    }
+    /**
      * Registers metaboxer controls.
      * @since 1.0.0
      * 
@@ -96,7 +107,7 @@ class MetaboxerAddon extends Addon
      */
     public function control_tr( $attributes, $field, $model, $helper )
     {
-        return $this->mvc->action( 'AdminController@control_tr', $attributes, $field, $model, $helper );
+        return $this->mvc->action( 'MetaboxController@control_tr', $attributes, $field, $model, $helper );
     }
     /**
      * Returns section control's attributes.
@@ -113,7 +124,7 @@ class MetaboxerAddon extends Addon
      */
     public function control_section( $attributes, $field, $model, $helper )
     {
-        return $this->mvc->action( 'AdminController@control_section', $attributes, $field, $model, $helper );
+        return $this->mvc->action( 'MetaboxController@control_section', $attributes, $field, $model, $helper );
     }
     /**
      * Registers/enqueues general admin assets.
