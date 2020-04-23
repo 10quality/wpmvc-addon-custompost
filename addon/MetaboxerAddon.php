@@ -123,7 +123,7 @@ class MetaboxerAddon extends Addon
      */
     public function admin_enqueue()
     {
-        wpmvc_register_addon_resource( 'font-awesome' );
+        $this->mvc->call( 'MetaboxController@enqueue' );
     }
     /**
      * Returns settings models.

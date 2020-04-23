@@ -3,8 +3,8 @@
 namespace WPMVC\Addons\Metaboxer\Controllers;
 
 use WPMVC\MVC\Controller;
-/*
 use WPMVC\Addons\Metaboxer\Controls\InputControl;
+/*
 use WPMVC\Addons\Metaboxer\Controls\CheckboxControl;
 use WPMVC\Addons\Metaboxer\Controls\SelectControl;
 use WPMVC\Addons\Metaboxer\Controls\RadioControl;
@@ -42,8 +42,8 @@ class ConfigController extends Controller
      */
     public function controls( $classes )
     {
-        /*
         $classes[InputControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\InputControl';
+        /*
         $classes[CheckboxControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\CheckboxControl';
         $classes[SelectControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\SelectControl';
         $classes[RadioControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\RadioControl';

@@ -1,0 +1,50 @@
+/*!
+ * Metaboxer styling.
+ */
+.metaboxer.has-tabs .inside {
+    margin: 0 !important;
+    padding: 0;
+}
+.metaboxer.has-tabs br.clear {
+    display: none;
+}
+.metaboxer .metaboxer-tabs {
+    display: flex;
+    flex-direction: row;
+}
+.metaboxer .metaboxer-tabs .tabs-list {
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+    border-right: 1px solid #eeeeee;
+}
+.metaboxer .metaboxer-tabs .tabs-list .tab-toggler {
+    padding: 11px;
+    width: 160px;
+    font-weight: 600;
+    background-color: #fafafa;
+    color: #0071ae;
+    border-bottom: 1px solid #eeeeee;
+}
+.metaboxer .metaboxer-tabs .tabs-list .tab-toggler:hover {
+    background-color: #f3f5f6;
+    color: #555555;
+    cursor: pointer;
+}
+.metaboxer .metaboxer-tabs .tabs-list .tab-toggler.active {
+    background-color: #eeeeee;
+    color: #333333;
+}
+.metaboxer .metaboxer-tabs .tabs-list .tab-toggler::last-child {
+    border-bottom: none;
+}
+.metaboxer.has-tabs .metaboxer-tabs .tabs-content {
+    width: 100%;
+}
+.metaboxer.has-tabs .metaboxer-tabs .tab-content {
+    padding: 12px;
+    display: none;
+}
+.metaboxer.has-tabs .metaboxer-tabs .tab-content.active {
+    display: block;
+}
