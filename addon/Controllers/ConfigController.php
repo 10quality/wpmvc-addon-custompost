@@ -4,7 +4,6 @@ namespace WPMVC\Addons\Metaboxer\Controllers;
 
 use WPMVC\MVC\Controller;
 use WPMVC\Addons\Metaboxer\Controls\InputControl;
-/*
 use WPMVC\Addons\Metaboxer\Controls\CheckboxControl;
 use WPMVC\Addons\Metaboxer\Controls\SelectControl;
 use WPMVC\Addons\Metaboxer\Controls\RadioControl;
@@ -18,7 +17,6 @@ use WPMVC\Addons\Metaboxer\Controls\Select2Control;
 use WPMVC\Addons\Metaboxer\Controls\ColorpickerControl;
 use WPMVC\Addons\Metaboxer\Controls\SwitchControl;
 use WPMVC\Addons\Metaboxer\Controls\DatetimepickerControl;
-*/
 
 /**
  * Add-on configuration hooks.
@@ -43,7 +41,6 @@ class ConfigController extends Controller
     public function controls( $classes )
     {
         $classes[InputControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\InputControl';
-        /*
         $classes[CheckboxControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\CheckboxControl';
         $classes[SelectControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\SelectControl';
         $classes[RadioControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\RadioControl';
@@ -57,7 +54,6 @@ class ConfigController extends Controller
         $classes[ColorpickerControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\ColorpickerControl';
         $classes[SwitchControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\SwitchControl';
         $classes[DatetimepickerControl::TYPE] = 'WPMVC\Addons\Metaboxer\Controls\DatetimepickerControl';
-        */
         return $classes;
     }
 }
