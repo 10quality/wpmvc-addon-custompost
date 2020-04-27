@@ -96,6 +96,11 @@ trait MetaboxTrait
                 : (array)json_decode( $this->meta['_wpmvc_model'] );
             if ( empty( $this->_model ) || !is_array( $this->_model ) )
                 $this->_model = [];
+            // For array values
+            foreach ( $this->_model as $key => $value ) {
+                if ( is_object( $value ) )
+                    $this->_model[$key] = (array)$value;
+            }
         }
     }
     /**
