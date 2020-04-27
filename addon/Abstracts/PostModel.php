@@ -6,6 +6,7 @@ use ReflectionClass;
 use WPMVC\MVC\Traits\FindTrait;
 use WPMVC\MVC\Models\PostModel as Model;
 use WPMVC\Addons\Metaboxer\Contracts\Enqueueable;
+use WPMVC\Addons\Metaboxer\Contracts\Modelable;
 use WPMVC\Addons\Metaboxer\Traits\MetaboxTrait;
 use WPMVC\Addons\Metaboxer\Traits\EnqueueTrait;
 
@@ -20,7 +21,7 @@ use WPMVC\Addons\Metaboxer\Traits\EnqueueTrait;
  * @license MIT
  * @version 1.0.0
  */
-class PostModel extends Model implements Enqueueable
+class PostModel extends Model implements Enqueueable, Modelable
 {
     use FindTrait, MetaboxTrait, EnqueueTrait;
     /**

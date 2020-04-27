@@ -43,6 +43,7 @@ class MetaboxerAddon extends Addon
             add_action( 'add_meta_boxes', [&$this, 'metaboxes_init'], 5 );
             add_action( 'admin_footer', [&$this, 'admin_footer'], 5 );
             add_filter( 'metaboxer_controls', [&$this, 'register_controls'], 1 );
+            add_action( 'save_post', [&$this, 'save_post'], 5 );
             add_filter( 'metaboxer_no_value_fields', function() {
                 return [
                     'section_open',
@@ -91,6 +92,18 @@ class MetaboxerAddon extends Addon
     public function register_controls()
     {
         return $this->mvc->action( 'ConfigController@controls', [] );
+    }
+    /**
+     * Saves posts and model data.
+     * @since 1.0.0
+     * 
+     * @hook save_post
+     * 
+     * @param int $post_id
+     */
+    public function save_post( $post_id )
+    {
+        $this->mvc->call( 'MetaboxController@save', $post_id );
     }
     /**
      * Returns control's <tr> attributes.

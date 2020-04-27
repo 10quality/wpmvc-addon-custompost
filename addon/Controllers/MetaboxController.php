@@ -3,6 +3,7 @@
 namespace WPMVC\Addons\Metaboxer\Controllers;
 
 use ReflectionClass;
+use WPMVC\Log;
 use WPMVC\Request;
 use WPMVC\MVC\Controller;
 use WPMVC\Addons\Metaboxer\MetaboxerAddon;
@@ -33,6 +34,12 @@ class MetaboxController extends Controller
      * @var array
      */
     protected static $controls = [];
+    /**
+     * Returns flag indicating if Metaaboxer has loaded or not.
+     * @since 1.0.0
+     * @var bool 
+     */
+    protected static $has_loaded = false;
     /**
      * Registered controls.
      * @since 1.0.0
@@ -72,57 +79,7 @@ class MetaboxController extends Controller
      */
     public function init()
     {
-        global $post;
-        $post_type = Request::input( 'post_type' );
-        if ( isset( $post ) )
-            $post_type = $post->post_type;
-        if ( empty( $post_type ) )
-            return;
-        // Get models
-        static::$models = array_filter( $this->get_models(), function( $model ) use( &$post_type ) {
-            return $model->type === $post_type;
-        } );
-        if ( empty( static::$models ) )
-            return;
-        // Init models
-        if ( isset( $post ) ) {
-            static::$models = array_map( function( $model ) use( &$post ) {
-                $model->from_post( $post );
-                return $model;
-            }, static::$models );
-        }
-        // Registered metaboxes models and obtain controls
-        $controls_in_use = [];
-        foreach ( static::$models as $key => $model ) {
-            foreach ( $model->metaboxes as $metabox_id => $metabox ) {
-                $id = $metabox_id . '_' . uniqid();
-                add_meta_box(
-                    $id,
-                    array_key_exists( 'title', $metabox ) ? $metabox['title'] : __( 'Fields', 'wpmvc-addon-metabox' ),
-                    [&$this, 'process_' . $key . '@' . $metabox_id],
-                    array_key_exists( 'screen', $metabox ) ? $metabox['screen'] : $model->type,
-                    array_key_exists( 'context ', $metabox ) ? $metabox['context '] : 'advanced',
-                    array_key_exists( 'priority  ', $metabox ) ? $metabox['priority  '] : 'default',
-                    array_key_exists( 'args  ', $metabox ) ? $metabox['args  '] : null
-                );
-                add_filter( 'postbox_classes_' . $model->type. '_' . $id, [&$this, 'css_' . $key . '@' . $metabox_id] );
-                // Get controls in use
-                if ( !array_key_exists( 'tabs', $metabox ) )
-                    continue;
-                foreach ( $metabox['tabs'] as $tab ) {
-                    if ( !array_key_exists( 'fields', $tab ) )
-                        continue;
-                    array_map( function( $field ) use( &$controls_in_use ) {
-                        if ( ( ! array_key_exists( 'type' , $field ) && ! in_array( 'input', $controls_in_use ) )
-                            || ( array_key_exists( 'type' , $field ) && ! in_array( $field['type'], $controls_in_use ) )
-                        ) {
-                            $controls_in_use[] = array_key_exists( 'type' , $field ) ? $field['type'] : 'input';
-                        }
-                    }, $tab['fields'] );
-                }
-            }
-        }
-        $this->get_controls( $controls_in_use );
+        $this->load_components();
     }
     /**
      * Runs at the end of form.
@@ -141,6 +98,70 @@ class MetaboxController extends Controller
         foreach ( static::$models as $key => $model ) {
             $model->footer();
             do_action( 'metaboxer_footer_' . $key );
+        }
+    }
+    /**
+     * Saves model data.
+     * @since 1.0.0
+     * 
+     * @hook save_post
+     * 
+     * @param int $post_id
+     */
+    public function save( $post_id )
+    {
+        // Return if not saving anything
+        if ( empty( $_POST ) )
+            return;
+        $this->load_components();
+        // Returns if not models exists for this post
+        if ( empty( static::$models ) )
+            return;
+        // Prepare
+        global $wpdb;
+        foreach ( static::$models as $key => $model ) {
+            // Beign model transaction
+            $wpdb->query( 'START TRANSACTION; -- Model: ' . $key );
+            try {
+                foreach ( $model->metaboxes as $metabox ) {
+                    if ( !array_key_exists( 'tabs', $metabox ) )
+                        continue;
+                    foreach ( $metabox['tabs'] as $tab ) {
+                        if ( !array_key_exists( 'fields', $tab ) )
+                            continue;
+                        foreach ( $tab['fields'] as $field_id => $field ) {
+                            if ( array_key_exists( 'type', $field )
+                                && in_array( $field['type'], apply_filters( 'metaboxer_no_value_fields', [] ) )
+                            ) {
+                                continue;
+                            }
+                            $value = Request::input(
+                                $field_id,
+                                array_key_exists( 'type', $field )
+                                    && in_array( $field['type'], apply_filters( 'metaboxer_bool_fields', [] ) )
+                                        ? 0
+                                        : null,
+                                false,
+                                array_key_exists( 'sanitize_callback', $field ) ? $field['sanitize_callback'] : true
+                            );
+                            if ( array_key_exists( 'storage', $field ) && $field['storage'] === 'model' ) {
+                                $model->set_prop( $field_id, $value );
+                            } else {
+                                $model->set_meta( $field_id, $value );
+                            }
+                        }
+                    }
+                }
+                // Save model
+                $model->save_meta_all();
+                static::$models[$key] = $model;
+                // End transaction
+                $wpdb->query( 'COMMIT; -- Model: ' . $key );
+            } catch ( Exception $e ) {
+                Log::error( $e );
+                // Roll back transaction
+                $wpdb->query( 'ROLLBACK; -- Model: ' . $key );
+            }
         }
     }
     /**
@@ -207,8 +228,7 @@ class MetaboxController extends Controller
                 if ( array_key_exists( 'type', $field ) && in_array( $field['type'], $no_value_fields ) )
                     continue;
                 $tab_data['fields'][$field_id]['id'] = $field_id;
-                $tab_data['fields'][$field_id]['value'] = null;
-                //$tab_data['fields'][$field_id]['value'] = static::$models[$key]->$field_id;
+                $tab_data['fields'][$field_id]['value'] = static::$models[$key]->$field_id;
                 $tab_data['fields'][$field_id]['_control'] = array_key_exists( 'type', $field ) ? $field['type'] : 'input';
                 if ( $tab_data['fields'][$field_id]['value'] === null && array_key_exists( 'default', $field ) ) {
                     $tab_data['fields'][$field_id]['value'] = $field['default'];
@@ -407,6 +427,68 @@ class MetaboxController extends Controller
         $this->add_field_attribute_hide_if( $attributes, $field, $model );
         // Render
         return $this->render_attributes( $attributes );
+    }
+    /**
+     * Loads metaboxer components.
+     * @since 1.0.0
+     */
+    private function load_components()
+    {
+        if ( static::$has_loaded === true )
+            return;
+        global $post;
+        $post_type = Request::input( 'post_type' );
+        if ( isset( $post ) )
+            $post_type = $post->post_type;
+        if ( empty( $post_type ) )
+            return;
+        // Get models
+        static::$models = array_filter( $this->get_models(), function( $model ) use( &$post_type ) {
+            return $model->type === $post_type;
+        } );
+        if ( empty( static::$models ) )
+            return;
+        // Init models
+        if ( isset( $post ) ) {
+            static::$models = array_map( function( $model ) use( &$post ) {
+                $model->from_post( $post );
+                return $model;
+            }, static::$models );
+        }
+        // Registered metaboxes models and obtain controls
+        $controls_in_use = [];
+        foreach ( static::$models as $key => $model ) {
+            foreach ( $model->metaboxes as $metabox_id => $metabox ) {
+                $id = $metabox_id . '_' . uniqid();
+                add_meta_box(
+                    $id,
+                    array_key_exists( 'title', $metabox ) ? $metabox['title'] : __( 'Fields', 'wpmvc-addon-metabox' ),
+                    [&$this, 'process_' . $key . '@' . $metabox_id],
+                    array_key_exists( 'screen', $metabox ) ? $metabox['screen'] : $model->type,
+                    array_key_exists( 'context ', $metabox ) ? $metabox['context '] : 'advanced',
+                    array_key_exists( 'priority  ', $metabox ) ? $metabox['priority  '] : 'default',
+                    array_key_exists( 'args  ', $metabox ) ? $metabox['args  '] : null
+                );
+                add_filter( 'postbox_classes_' . $model->type. '_' . $id, [&$this, 'css_' . $key . '@' . $metabox_id] );
+                // Get controls in use
+                if ( !array_key_exists( 'tabs', $metabox ) )
+                    continue;
+                foreach ( $metabox['tabs'] as $tab ) {
+                    if ( !array_key_exists( 'fields', $tab ) )
+                        continue;
+                    array_map( function( $field ) use( &$controls_in_use ) {
+                        if ( ( ! array_key_exists( 'type' , $field ) && ! in_array( 'input', $controls_in_use ) )
+                            || ( array_key_exists( 'type' , $field ) && ! in_array( $field['type'], $controls_in_use ) )
+                        ) {
+                            $controls_in_use[] = array_key_exists( 'type' , $field ) ? $field['type'] : 'input';
+                        }
+                    }, $tab['fields'] );
+                }
+            }
+        }
+        $this->get_controls( $controls_in_use );
+        // Set loaded flag
+        static::$has_loaded = true;
     }
     /**
      * Adds show if logic to field attributes.
