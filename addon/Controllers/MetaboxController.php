@@ -80,6 +80,22 @@ class MetaboxController extends Controller
     public function init()
     {
         $this->load_components();
+        // Register metaboxes
+        foreach ( static::$models as $key => $model ) {
+            foreach ( $model->metaboxes as $metabox_id => $metabox ) {
+                $id = $metabox_id . '_' . uniqid();
+                add_meta_box(
+                    $id,
+                    array_key_exists( 'title', $metabox ) ? $metabox['title'] : __( 'Fields', 'wpmvc-addon-metabox' ),
+                    [&$this, 'process_' . $key . '@' . $metabox_id],
+                    array_key_exists( 'screen', $metabox ) ? $metabox['screen'] : $model->type,
+                    array_key_exists( 'context', $metabox ) ? $metabox['context'] : 'advanced',
+                    array_key_exists( 'priority', $metabox ) ? $metabox['priority'] : 'default',
+                    array_key_exists( 'args', $metabox ) ? $metabox['args'] : null
+                );
+                add_filter( 'postbox_classes_' . $model->type. '_' . $id, [&$this, 'css_' . $key . '@' . $metabox_id] );
+            }
+        }
     }
     /**
      * Runs at the end of form.
@@ -459,17 +475,6 @@ class MetaboxController extends Controller
         $controls_in_use = [];
         foreach ( static::$models as $key => $model ) {
             foreach ( $model->metaboxes as $metabox_id => $metabox ) {
-                $id = $metabox_id . '_' . uniqid();
-                add_meta_box(
-                    $id,
-                    array_key_exists( 'title', $metabox ) ? $metabox['title'] : __( 'Fields', 'wpmvc-addon-metabox' ),
-                    [&$this, 'process_' . $key . '@' . $metabox_id],
-                    array_key_exists( 'screen', $metabox ) ? $metabox['screen'] : $model->type,
-                    array_key_exists( 'context ', $metabox ) ? $metabox['context '] : 'advanced',
-                    array_key_exists( 'priority  ', $metabox ) ? $metabox['priority  '] : 'default',
-                    array_key_exists( 'args  ', $metabox ) ? $metabox['args  '] : null
-                );
-                add_filter( 'postbox_classes_' . $model->type. '_' . $id, [&$this, 'css_' . $key . '@' . $metabox_id] );
                 // Get controls in use
                 if ( !array_key_exists( 'tabs', $metabox ) )
                     continue;

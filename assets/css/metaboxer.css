@@ -1,5 +1,9 @@
 /*!
  * Metaboxer styling.
+ * @author 10 Quality <info@10quality.com>
+ * @package wpmvc-addon-resources
+ * @license MIT
+ * @version 1.0.0
  */
 .metaboxer.has-tabs .inside {
     margin: 0 !important;
@@ -47,4 +51,55 @@
 }
 .metaboxer.has-tabs .metaboxer-tabs .tab-content.active {
     display: block;
+}
+/* RESPONSIVENESS */
+@media screen and (max-width: 778px) {
+    .metaboxer .metaboxer-tabs {
+        flex-direction: column;
+    }
+    .metaboxer .metaboxer-tabs .tabs-list {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        border-right: none;
+        border-bottom: 1px solid #eeeeee;
+    }
+    .metaboxer .metaboxer-tabs .tabs-list .tab-toggler {
+        margin: 12px;
+        padding: 4px;
+        width: auto !important;
+        font-size: small;
+        border: 1px solid #eeeeee;
+    }
+}
+/* SIDE METABOXES */
+#side-sortables .metaboxer table.form-table tr {
+    display: flex;
+    flex-direction: column;
+}
+#side-sortables .metaboxer table.form-table tr th {
+    padding: 0 0 10px;
+}
+#side-sortables .metaboxer table.form-table tr td {
+    padding: 0;
+}
+#side-sortables .metaboxer .type-media .attachment {
+    width: 100%;
+}
+#side-sortables .metaboxer .metaboxer-tabs {
+    flex-direction: column;
+}
+#side-sortables .metaboxer .metaboxer-tabs .tabs-list {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid #eeeeee;
+}
+#side-sortables .metaboxer .metaboxer-tabs .tabs-list .tab-toggler {
+    margin: 12px;
+    padding: 4px;
+    width: auto !important;
+    font-size: small;
+    border: 1px solid #eeeeee;
 }
