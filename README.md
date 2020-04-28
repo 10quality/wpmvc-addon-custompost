@@ -6,7 +6,9 @@
 
 Add-on for [WordPress MVC](http://www.wordpress-mvc.com/).
 
-The add-on will allow you to maintain and auto-generate metabox and custom fields for Post models. Models are self-contained and can be instantiated across WordPress via PHP.
+This add-on will allow you to maintain and auto-generate metaboxes and custom fields for Post models. Models are self-contained and can be instantiated across WordPress via PHP.
+
+![Metaboxer Add-on](https://www.wordpress-mvc.com/wp-content/uploads/2020/04/wpmvc-metaboxer-addon.jpg)
 
 ## Documentation
 
