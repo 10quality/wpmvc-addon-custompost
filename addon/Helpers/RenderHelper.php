@@ -127,7 +127,7 @@ class RenderHelper
         foreach ( $keys as $key ) {
             foreach ( $this->repeater_fields as $field_id => $field ) {
                 $field['field_id'] = $field_id;
-                $field['value'] = array_key_exists( $key, $field['value'] ) ? $field['value'][$key] : null;
+                $field['value'] = is_array( $field['value'] ) && array_key_exists( $key, $field['value'] ) ? $field['value'][$key] : null;
                 $field['id'] = ( array_key_exists( 'name', $field ) ? $field['name'] : $field_id ) . '['. $key .']';
                 $field['name'] = ( array_key_exists( 'name', $field ) ? $field['name'] : $field_id ) . '['. $key .']';
                 $field['repeater_key'] = $key;
