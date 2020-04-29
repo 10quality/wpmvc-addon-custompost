@@ -173,6 +173,7 @@ class MetaboxController extends Controller
                 static::$models[$key] = $model;
                 // End transaction
                 $wpdb->query( 'COMMIT; -- Model: ' . $key );
+                do_action( 'metaboxer_saved_' . $key, $model );
             } catch ( Exception $e ) {
                 Log::error( $e );
                 // Roll back transaction
