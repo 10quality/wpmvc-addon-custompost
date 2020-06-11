@@ -9,7 +9,7 @@ namespace WPMVC\Addons\Metaboxer\Traits;
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-metaboxer
  * @license M
- * @version 1.0.0
+ * @version 1.0.1
  */
 trait MetaboxTrait
 {
@@ -93,7 +93,10 @@ trait MetaboxTrait
         if ( $this->has_meta( '_wpmvc_model' ) ) {
             $this->_model = is_object( $this->meta['_wpmvc_model'] )
                 ? (array)$this->meta['_wpmvc_model']
-                : (array)json_decode( $this->meta['_wpmvc_model'] );
+                : ( !is_array( $this->meta['_wpmvc_model'] )
+                    ? (array)json_decode( $this->meta['_wpmvc_model'] )
+                    : $this->meta['_wpmvc_model']
+                );
             if ( empty( $this->_model ) || !is_array( $this->_model ) )
                 $this->_model = [];
             // For array values
