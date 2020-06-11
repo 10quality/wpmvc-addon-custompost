@@ -9,7 +9,7 @@ namespace WPMVC\Addons\Metaboxer\Traits;
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-metaboxer
  * @license M
- * @version 1.0.1
+ * @version 1.0.2
  */
 trait MetaboxTrait
 {
@@ -76,9 +76,9 @@ trait MetaboxTrait
                             continue;
                         }
                         if ( array_key_exists( 'storage', $field ) && $field['storage'] === 'model' ) {
-                            $model->set_prop( $field_id, $value );
+                            $this->set_prop( $field_id, $value );
                         } else {
-                            $model->set_meta( $field_id, $value );
+                            $this->set_meta( $field_id, $value );
                         }
                         $set = true;
                     }
