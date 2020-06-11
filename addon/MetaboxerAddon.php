@@ -12,7 +12,7 @@ use WPMVC\Addon;
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-metaboxer
  * @license MIT
- * @version 1.0.0
+ * @version 1.0.1
  */
 class MetaboxerAddon extends Addon
 {
@@ -30,6 +30,21 @@ class MetaboxerAddon extends Addon
     public function init()
     {
         add_filter( 'metaboxer_models', [&$this, 'register_models'], 1 );
+        add_filter( 'metaboxer_no_value_fields', function() {
+            return [
+                'section_open',
+                'section_close',
+                'section_separator',
+                'callback',
+                'repeater_open',
+                'repeater_close',
+            ];
+        }, 1 );
+        add_filter( 'metaboxer_bool_fields', function() {
+            return [
+                'checkbox',
+            ];
+        }, 1 );
     }
     /**
      * Function called when user is on admin dashboard.
@@ -44,21 +59,6 @@ class MetaboxerAddon extends Addon
             add_action( 'admin_footer', [&$this, 'admin_footer'], 5 );
             add_filter( 'metaboxer_controls', [&$this, 'register_controls'], 1 );
             add_action( 'save_post', [&$this, 'save_post'], 5 );
-            add_filter( 'metaboxer_no_value_fields', function() {
-                return [
-                    'section_open',
-                    'section_close',
-                    'section_separator',
-                    'callback',
-                    'repeater_open',
-                    'repeater_close',
-                ];
-            }, 1 );
-            add_filter( 'metaboxer_bool_fields', function() {
-                return [
-                    'checkbox',
-                ];
-            }, 1 );
             add_filter( 'metaboxer_control_tr', [&$this, 'control_tr'], 99999, 4 );
             add_filter( 'metaboxer_control_section', [&$this, 'control_section'], 99999, 4 );
         }
