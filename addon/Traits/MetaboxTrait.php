@@ -59,7 +59,33 @@ trait MetaboxTrait
         } elseif ( $property !== '_wpmvc_model' && array_key_exists( $property, $this->meta ) ) {
             $this->meta[$property] = $value;
         } else {
-            parent::__set( $property, $value );
+            $set = false;
+            foreach ( $this->metaboxes as $metabox ) {
+                if ( !array_key_exists( 'tabs', $metabox ) )
+                    continue;
+                foreach ( $metabox['tabs'] as $tab ) {
+                    if ( !array_key_exists( 'fields', $tab ) )
+                        continue;
+                    foreach ( $tab['fields'] as $field_id => $field ) {
+                        if ( $property !== $field_id )
+                            continue;
+                        if ( array_key_exists( 'type', $field )
+                            && in_array( $field['type'], apply_filters( 'metaboxer_no_value_fields', [] ) )
+                        ) {
+                            $set = true;
+                            continue;
+                        }
+                        if ( array_key_exists( 'storage', $field ) && $field['storage'] === 'model' ) {
+                            $model->set_prop( $field_id, $value );
+                        } else {
+                            $model->set_meta( $field_id, $value );
+                        }
+                        $set = true;
+                    }
+                }
+            }
+            if ( !$set )
+                parent::__set( $property, $value );
         }
     }
     /**
