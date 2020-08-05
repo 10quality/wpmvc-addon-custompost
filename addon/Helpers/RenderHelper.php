@@ -9,7 +9,7 @@ use WPMVC\Addons\Metaboxer\MetaboxerAddon;
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-metaboxer
  * @license MIT
- * @version 1.0.3
+ * @version 1.0.4
  */
 class RenderHelper
 {
@@ -119,10 +119,12 @@ class RenderHelper
         // Get item keys
         $keys = [];
         foreach ( $this->repeater_fields as $field ) {
-            if ( array_key_exists( 'value' , $field ) && is_array( $field['value'] ) )
-                $keys = array_keys( $field['value'] );
-            if ( !empty( $keys ) )
-                break;
+            if ( array_key_exists( 'value' , $field ) && is_array( $field['value'] ) ) {
+                foreach ( array_keys( $field['value'] ) as $key ) {
+                    if ( !in_array( $key, $keys, true ) )
+                        $keys[] = $key;
+                }
+            }
         }
         $this->is_repeater_field = true;
         foreach ( $keys as $key ) {
