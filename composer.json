@@ -17,5 +17,9 @@
             "WPMVC\\Addons\\Metaboxer\\": "addon/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require-dev": {
+        "10quality/wpmvc-addon-testsuite": "dev-main",
+        "phpunit/phpunit": "9.*"
+    }
 }
