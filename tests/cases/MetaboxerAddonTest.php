@@ -9,13 +9,13 @@ use WPMVC\Addons\Metaboxer\MetaboxerAddon;
  * @author 10 Quality <info@10quality.com>
  * @package wpmvc-addon-customizer
  * @license MIT
- * @version 1.0.8
+ * @version 1.0.5
  */
 class MetaboxerAddonTest extends TestCase
 {
     /**
      * Tear down.
-     * @since 1.0.8
+     * @since 1.0.5
      */
     public function tearDown(): void
     {
@@ -23,7 +23,7 @@ class MetaboxerAddonTest extends TestCase
     }
     /**
      * Test init.
-     * @since 1.0.8
+     * @since 1.0.5
      * @group addon
      */
     public function testInit()
@@ -40,7 +40,7 @@ class MetaboxerAddonTest extends TestCase
     }
     /**
      * Test init.
-     * @since 1.0.8
+     * @since 1.0.5
      * @group addon
      */
     public function testOnAdmin()
@@ -61,7 +61,7 @@ class MetaboxerAddonTest extends TestCase
     }
     /**
      * Test init.
-     * @since 1.0.8
+     * @since 1.0.5
      * @group addon
      */
     public function testRegisterControls()
